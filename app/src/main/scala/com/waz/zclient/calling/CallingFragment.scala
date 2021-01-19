@@ -56,17 +56,6 @@ class CallingFragment extends FragmentHelper {
         _.setBackgroundColor(getStyledColor(R.attr.wireBackgroundColor, theme))
       }
     }
-
-    vh.foreach { grid =>
-
-      Signal.zip(videoGridInfo, controller.isFullScreenEnabled, controller.showTopSpeakers, controller.activeParticipantsWithVideo()).foreach {
-        case ((selfParticipant, videoUsers, infos, participants, isVideoBeingSent), false, true, activeParticipantsWithVideo) =>
-          refreshVideoGrid(grid, selfParticipant, activeParticipantsWithVideo, infos, participants, isVideoBeingSent, true)
-        case ((selfParticipant, videoUsers, infos, participants, isVideoBeingSent), false, false, _) =>
-          refreshVideoGrid(grid, selfParticipant, videoUsers, infos, participants, isVideoBeingSent, false)
-        case _ =>
-      }
-    }
   }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View =
@@ -87,6 +76,17 @@ class CallingFragment extends FragmentHelper {
     }
 
     videoGrid
+
+    videoGrid.foreach { grid =>
+
+      Signal.zip(videoGridInfo, controller.isFullScreenEnabled, controller.showTopSpeakers, controller.activeParticipantsWithVideo()).foreach {
+        case ((selfParticipant, videoUsers, infos, participants, isVideoBeingSent), false, true, activeParticipantsWithVideo) =>
+          refreshVideoGrid(grid, selfParticipant, activeParticipantsWithVideo, infos, participants, isVideoBeingSent, true)
+        case ((selfParticipant, videoUsers, infos, participants, isVideoBeingSent), false, false, _) =>
+          refreshVideoGrid(grid, selfParticipant, videoUsers, infos, participants, isVideoBeingSent, false)
+        case _ =>
+      }
+    }
 
     Signal.zip(
       controller.showTopSpeakers,
