@@ -27,6 +27,8 @@ import com.waz.zclient.calling.controllers.CallController
 import com.waz.zclient.log.LogUI._
 import com.waz.zclient.tracking.GlobalTrackingController
 import com.waz.zclient.utils.DeprecationUtils
+import com.waz.zclient.utils.ContextUtils.showCustomInfoDialogOnTop
+import com.waz.zclient.R
 
 class CallingActivity extends BaseActivity {
   private lazy val controller = inject[CallController]
@@ -42,6 +44,8 @@ class CallingActivity extends BaseActivity {
       .commit
 
     controller.shouldHideCallingUi.onUi { _ => finish()}
+
+    showCustomInfoDialogOnTop("",getString(R.string.calling_muted_info))(this)
   }
 
   override def onAttachedToWindow(): Unit = {

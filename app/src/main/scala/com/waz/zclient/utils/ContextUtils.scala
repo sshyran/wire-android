@@ -24,6 +24,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.text.format.Formatter
 import android.util.{AttributeSet, TypedValue}
+import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.StyleableRes
 import androidx.appcompat.app.AlertDialog
@@ -190,6 +191,25 @@ object ContextUtils {
       .setCancelable(false)
       .create
       .show()
+    p.future
+  }
+
+  def showCustomInfoDialogOnTop(title: String, msg: String, positiveRes: Int = android.R.string.ok)
+                               (implicit context: Context): Future[Boolean] = {
+
+    val p = Promise[Boolean]()
+    val dialog = new AlertDialog.Builder(context)
+      .setTitle(title)
+      .setMessage(msg)
+      .setPositiveButton(positiveRes, new DialogInterface.OnClickListener {
+        override def onClick(dialog: DialogInterface, which: Int) = p.tryComplete(Success(true))
+      })
+      .setCancelable(true)
+      .create
+
+    dialog.getWindow.setGravity(Gravity.TOP)
+    dialog.show()
+
     p.future
   }
 
