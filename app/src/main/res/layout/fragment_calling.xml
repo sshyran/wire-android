@@ -19,6 +19,7 @@
 
 -->
 <com.waz.zclient.common.controllers.ThemeControllingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
              android:layout_height="match_parent"
              xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -30,6 +31,7 @@
         android:layout_height="match_parent"
         app:columnCount="2"
         app:orientation="horizontal"
+        android:elevation="1dp"
         />
 
     <LinearLayout
@@ -38,7 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:elevation="1dp">
 
         <ProgressBar
             android:layout_width="wrap_content"
@@ -66,17 +69,19 @@
         android:layout_marginEnd="@dimen/wire__padding__regular"
         app:cardCornerRadius="@dimen/calling_preview_card_radius"
         android:visibility="gone"
+        android:elevation="1dp"
         />
 
     <FrameLayout
         android:id="@+id/controls_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="1dp"/>
+        android:elevation="2dp"/>
 
     <FrameLayout
         android:id="@+id/full_screen_video_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:elevation="1dp"/>
 
 </com.waz.zclient.common.controllers.ThemeControllingFrameLayout>

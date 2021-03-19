@@ -23,6 +23,7 @@ import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{FrameLayout, LinearLayout, Toast}
 import androidx.cardview.widget.CardView
 import androidx.gridlayout.widget.GridLayout
+import com.waz.avs.VideoPreview
 import com.waz.service.call.Avs.VideoState
 import com.waz.service.call.CallInfo.Participant
 import com.waz.threading.Threading
@@ -43,11 +44,13 @@ import com.waz.zclient.calling.controllers.CallController.CallParticipantInfo
 class CallingFragment extends FragmentHelper {
   import Threading.Implicits.Ui
 
-  private lazy val controller             = inject[CallController]
-  private lazy val themeController        = inject[ThemeController]
-  private lazy val controlsFragment       = ControlsFragment.newInstance
-  private lazy val previewCardView        = view[CardView](R.id.preview_card_view)
-  private lazy val noActiveSpeakersLayout = view[LinearLayout](R.id.no_active_speakers_layout)
+  private lazy val controller              = inject[CallController]
+  private lazy val themeController         = inject[ThemeController]
+  private lazy val controlsFragment        = ControlsFragment.newInstance
+  private lazy val previewCardView         = view[CardView](R.id.preview_card_view)
+  private lazy val noActiveSpeakersLayout  = view[LinearLayout](R.id.no_active_speakers_layout)
+  private lazy val parentLayout            = view[FrameLayout](R.id.parent_layout)
+  private var videoPreview: VideoPreview = _
 
   private lazy val videoGrid = returning(view[GridLayout](R.id.video_grid)) { vh =>
 
@@ -86,8 +89,6 @@ class CallingFragment extends FragmentHelper {
       if (_) inject[SecurityPolicyChecker].run(getActivity)
     }
 
-    videoGrid
-
     Signal.zip(
       controller.showTopSpeakers,
       controller.longTermActiveParticipantsWithVideo().map(_.size > 0),
@@ -108,6 +109,22 @@ class CallingFragment extends FragmentHelper {
       case _ =>
     }
 
+    controller.videoSendState.onUi {
+      case VideoState.Started | VideoState.ScreenShare | VideoState.BadConnection =>
+        videoPreview = new VideoPreview(getContext) {
+          v =>
+          controller.setVideoPreview(Some(v))
+          v.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+          v.setElevation(0)
+          parentLayout.foreach(_.addView(v))
+        }
+      case _ =>
+        controller.setVideoPreview(null)
+        parentLayout.foreach(_.removeView(videoPreview))
+    }
+
+
+    videoGrid
   }
 
   override def onBackPressed(): Boolean =
@@ -139,7 +156,9 @@ class CallingFragment extends FragmentHelper {
 
   private def refreshViews(videoUsers: Seq[Participant], selfParticipant: Participant): Seq[UserVideoView] = {
     def createView(participant: Participant): UserVideoView = returning {
-      if (participant == selfParticipant) new SelfVideoView(getContext, participant)
+      if (participant == selfParticipant) returning(new SelfVideoView(getContext, selfParticipant)) {
+        view => view.setVideoPreview(videoPreview)
+      }
       else new OtherVideoView(getContext, participant)
     } { userView =>
       viewMap = viewMap.updated(participant, userView)
@@ -244,18 +263,9 @@ class CallingFragment extends FragmentHelper {
       case (participant, _) => !videoUsers.contains(participant)
     }
 
-    val isSelfVideoEnabled = videoUsers.contains(selfParticipant)
+    viewsToRemove.foreach { case (_, view) => grid.removeView(view) }
 
-    viewMap.foreach { case (_, view) => view.setVisibility(View.VISIBLE) }
-
-    viewsToRemove.foreach {
-      case (participant, view) =>
-        if (participant == selfParticipant) {
-          if (isSelfVideoEnabled) view.setVisibility(View.VISIBLE) else view.setVisibility(View.INVISIBLE)
-        }
-        else grid.removeView(view)
-    }
-    viewMap = viewMap.filter { case (participant, _) => videoUsers.contains(participant) || participant == selfParticipant }
+    viewMap = viewMap.filter { case (participant, _) => videoUsers.contains(participant) }
   }
 
   def clearVideoGrid(): Unit = {
