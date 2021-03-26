@@ -62,10 +62,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/legal_hold_info_subjects_recycler_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/wire__padding__8"
+        android:layout_marginBottom="@dimen/wire__padding__16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/legal_hold_info_list_title_text_view" />
+        app:layout_constraintTop_toBottomOf="@id/legal_hold_info_list_title_text_view"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -81,9 +81,10 @@ class ConversationLegalHoldInfoActivity extends BaseActivity with LegalHoldInfoF
     finish()
   }
 
-  override def onShowAllLegalHoldUsersClick(): Unit = {
-    //TODO show a list of all legal hold subjects
-  }
+  override def onShowAllLegalHoldUsersClick(): Unit =
+    showFragment(
+      AllLegalHoldSubjectsFragment.newInstance(),
+      Some(AllLegalHoldSubjectsFragment.TAG))
 }
 
 object ConversationLegalHoldInfoActivity {
