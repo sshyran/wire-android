@@ -39,6 +39,7 @@ import com.waz.zclient.utils.ContextUtils._
 import com.waz.zclient.views.DefaultPageTransitionAnimation
 import com.waz.zclient.{FragmentHelper, ManagerFragment, R}
 import com.waz.api.ConnectionStatus._
+import com.waz.zclient.legalhold.ConversationLegalHoldInfoActivity
 import com.waz.zclient.messages.UsersController
 import com.waz.zclient.utils.ContextUtils
 
@@ -116,6 +117,7 @@ class ParticipantFragment extends ManagerFragment with ConversationScreenControl
       case Some(userId) => showUser(userId)
       case _ =>
     }
+    headerFragment.onLegalHoldClick { _ => openLegalHoldInfoScreen() }
   }
 
   override def onStart(): Unit = {
@@ -259,6 +261,11 @@ class ParticipantFragment extends ManagerFragment with ConversationScreenControl
           openUserProfileFragment(newInstance(userId, UserRequester.PARTICIPANTS), Tag)
         case _ =>
       }
+  }
+
+  private def openLegalHoldInfoScreen(): Unit = {
+    startActivity(ConversationLegalHoldInfoActivity.newIntent(getActivity))
+    //TODO: transition animation
   }
 
   override def onHideUser(): Unit = if (screenController.isShowingUser) {

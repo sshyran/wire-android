@@ -225,6 +225,10 @@
             android:name=".legalhold.SelfUserLegalHoldInfoActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".legalhold.ConversationLegalHoldInfoActivity"
+            android:screenOrientation="portrait" />
+
         <receiver
             android:name=".broadcast.ReferralBroadcastReceiver"
             android:exported="true"
