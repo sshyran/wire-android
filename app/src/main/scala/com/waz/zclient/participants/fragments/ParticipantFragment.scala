@@ -17,7 +17,7 @@
  */
 package com.waz.zclient.participants.fragments
 
-import android.content.Context
+import android.content.{Context, Intent}
 import android.os.Bundle
 import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
@@ -264,9 +264,22 @@ class ParticipantFragment extends ManagerFragment with ConversationScreenControl
   }
 
   private def openLegalHoldInfoScreen(): Unit = {
-    startActivity(ConversationLegalHoldInfoActivity.newIntent(getActivity))
+    startActivityForResult(
+      ConversationLegalHoldInfoActivity.newIntent(getActivity),
+      REQUEST_CODE_LEGAL_HOLD_INFO)
     //TODO: transition animation
   }
+
+  override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Unit =
+    (requestCode, resultCode) match {
+      case (REQUEST_CODE_LEGAL_HOLD_INFO,
+            ConversationLegalHoldInfoActivity.RESULT_CODE_SHOW_USER_DEVICES) => showCurrentUserDevices()
+      case (_, _) => super.onActivityResult(requestCode, resultCode, data)
+    }
+
+  private def showCurrentUserDevices(): Unit =
+    findChildFragment[SingleParticipantFragment](SingleParticipantFragment.Tag)
+      .foreach(_.showDevicesTab())
 
   override def onHideUser(): Unit = if (screenController.isShowingUser) {
     getChildFragmentManager.popBackStack()
@@ -281,6 +294,8 @@ class ParticipantFragment extends ManagerFragment with ConversationScreenControl
 }
 
 object ParticipantFragment {
+  private val REQUEST_CODE_LEGAL_HOLD_INFO = 1347
+
   val TAG: String = classOf[ParticipantFragment].getName
   private val PageToOpenArg = "ARG__FIRST__PAGE"
   private val UserToOpenArg = "ARG__USER"

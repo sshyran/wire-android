@@ -231,26 +231,33 @@ class SingleParticipantFragment extends FragmentHelper {
     (R.string.glyph__conversation, R.string.conversation__action__open_conversation)
   }
 
-  protected lazy val footerMenu = returning( view[FooterMenu](R.id.fm__footer) ) { vh =>
-    // TODO: merge this logic with ConversationOptionsMenuController
-    subs += (for {
-        conv            <- participantsController.conv
-        remPerm         <- participantsController.selfRole.map(_.canRemoveGroupMember)
-        selfIsProUser   <- userAccountsController.isTeam
-        other           <- participantsController.otherParticipant
-        otherIsGuest    =  other.isGuest(conv.team)
-        showRightAction =  if (fromDeepLink) !selfIsProUser || otherIsGuest else remPerm
-        rightActionStr  =  getString(if (showRightAction) R.string.glyph__more else R.string.empty_string)
-      } yield rightActionStr).onUi(text => vh.foreach(_.setRightActionText(text)))
+  protected lazy val footerMenu = view[FooterMenu](R.id.fm__footer)
 
-    subs += leftActionStrings.onUi { case (icon, text) =>
-      vh.foreach { menu =>
-        menu.setLeftActionText(getString(icon))
-        menu.setLeftActionLabelText(getString(text))
+  private def initFooterMenu(): Unit = {
+    val footerVisible = getBooleanArg(ShowFooter, default = true)
+    footerMenu.foreach(_.setVisible(footerVisible))
+
+    if (footerVisible) {
+      // TODO: merge this logic with ConversationOptionsMenuController
+      subs += (for {
+        conv <- participantsController.conv
+        remPerm <- participantsController.selfRole.map(_.canRemoveGroupMember)
+        selfIsProUser <- userAccountsController.isTeam
+        other <- participantsController.otherParticipant
+        otherIsGuest = other.isGuest(conv.team)
+        showRightAction = if (fromDeepLink) !selfIsProUser || otherIsGuest else remPerm
+        rightActionStr = getString(if (showRightAction) R.string.glyph__more else R.string.empty_string)
+      } yield rightActionStr).onUi(text => footerMenu.foreach(_.setRightActionText(text)))
+
+      subs += leftActionStrings.onUi { case (icon, text) =>
+        footerMenu.foreach { menu =>
+          menu.setLeftActionText(getString(icon))
+          menu.setLeftActionLabelText(getString(text))
+        }
       }
-    }
 
-    vh.foreach(_.setCallback(footerCallback))
+      footerMenu.foreach(_.setCallback(footerCallback))
+    }
   }
 
   override def onCreateView(inflater: LayoutInflater, viewGroup: ViewGroup, savedInstanceState: Bundle): View =
@@ -265,14 +272,18 @@ class SingleParticipantFragment extends FragmentHelper {
     userHandle
     detailsView
     devicesView
-    footerMenu
+    initFooterMenu()
 
     if (Option(savedInstanceState).isEmpty) {
       val tab = Tab(getStringArg(TabToOpen))
       visibleTab ! tab
-      tabs.foreach(_.getTabAt(tab.pos).select())
+      selectTab(tab)
     }
   }
+
+  private def selectTab(tab: Tab) : Unit = tabs.foreach(_.getTabAt(tab.pos).select())
+
+  def showDevicesTab(): Unit = selectTab(DevicesTab)
 
   override def onBackPressed(): Boolean = {
     participantsController.selectedParticipant ! None
@@ -316,14 +327,14 @@ object SingleParticipantFragment {
   }
 
   private val TabToOpen: String = "TAB_TO_OPEN"
-
-
   private val FromDeepLink: String = "FROM_DEEP_LINK"
+  private val ShowFooter: String = "SINGLE_PARTICIPANT_SHOW_FOOTER"
 
-  def newInstance(tabToOpen: Option[String] = None, fromDeepLink: Boolean = false): SingleParticipantFragment =
+  def newInstance(tabToOpen: Option[String] = None, fromDeepLink: Boolean = false, showFooter: Boolean = true): SingleParticipantFragment =
     returning(new SingleParticipantFragment) { f =>
       val args = new Bundle()
       args.putBoolean(FromDeepLink, fromDeepLink)
+      args.putBoolean(ShowFooter, showFooter)
       tabToOpen.foreach { t => args.putString(TabToOpen, t)}
       f.setArguments(args)
     }
