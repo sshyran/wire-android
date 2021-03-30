@@ -20,7 +20,8 @@ package com.waz.zclient.calling.controllers
 import android.os.{Build, PowerManager}
 import android.telephony.{PhoneStateListener, TelephonyManager}
 import com.waz.avs.VideoPreview
-import com.waz.content.GlobalPreferences
+import com.waz.content.{GlobalPreferences, UserPreferences}
+import com.waz.content.UserPreferences.ShouldShowJoiningBanner
 import com.waz.log.BasicLogging.LogTag.DerivedLogTag
 import com.waz.model._
 import com.waz.model.otr.ClientId
@@ -43,6 +44,7 @@ import com.waz.zclient.utils.DeprecationUtils
 import com.waz.zclient.{Injectable, Injector, R, WireContext}
 import com.wire.signals._
 import org.threeten.bp.Instant
+import com.waz.content.UserPreferences.ShouldShowJoiningBanner
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -55,6 +57,10 @@ class CallController(implicit inj: Injector, cxt: WireContext)
 
   val isFullScreenEnabled = Signal(false)
   val showTopSpeakers = Signal(false)
+
+  protected lazy val userPreferences = inject[Signal[UserPreferences]]
+  val shouldShowJoiningBanner: Signal[Boolean] = userPreferences.flatMap(_.preference(ShouldShowJoiningBanner).signal)
+  val isSelfJoining = Signal(false)
 
   private lazy val screenManager  = new ScreenManager
   private lazy val soundController = inject[SoundController]

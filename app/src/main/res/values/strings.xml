@@ -339,7 +339,7 @@
     <string name="calling_no_active_speaker">No active speakers...</string>
     <string name="calling_toggle_all">ALL</string>
     <string name="calling_toggle_speakers">SPEAKERS</string>
-    <string name="calling_muted_info">WHEN JOINING A CONFERENCE CALL, YOU ARE MUTED BY DEFAULT.</string>
+    <string name="calling_muted_info">WHEN YOU JOIN A CONFERENCE CALL, YOU ARE INITIALLY MUTED.</string>
 
     <!-- Connect request -->
     <string name="connect__message">Hi %1$s,\nLet\'s connect on Wire.\n%2$s</string>

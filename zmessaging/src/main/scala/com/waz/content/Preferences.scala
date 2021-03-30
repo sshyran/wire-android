@@ -421,4 +421,6 @@ object UserPreferences {
   lazy val AppLockEnabled: PrefKey[Boolean]                = PrefKey[Boolean]("app_lock_enabled", customDefault = false)
   lazy val AppLockForced:  PrefKey[Boolean]                = PrefKey[Boolean]("app_lock_forced", customDefault = false)
   lazy val AppLockTimeout: PrefKey[Option[FiniteDuration]] = PrefKey[Option[FiniteDuration]]("app_lock_timeout", customDefault = None)
+
+  lazy val ShouldShowJoiningBanner:  PrefKey[Boolean]  = PrefKey[Boolean]("should_show_joining_banner", customDefault = true)
 }

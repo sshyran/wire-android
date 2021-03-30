@@ -45,7 +45,10 @@ class CallingActivity extends BaseActivity {
 
     controller.shouldHideCallingUi.onUi { _ => finish()}
 
-    showCustomInfoDialogOnTop("",getString(R.string.calling_muted_info))(this)
+    controller.shouldShowJoiningBanner.onUi {
+      case true => showCustomInfoDialogOnTop("", getString(R.string.calling_muted_info))(this)
+      case _    =>
+    }
   }
 
   override def onAttachedToWindow(): Unit = {
